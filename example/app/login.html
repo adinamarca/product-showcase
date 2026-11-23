@@ -1,0 +1,27 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Sign in · Acme Orders</title>
+<link rel="stylesheet" href="app.css">
+<script src="theme.js"></script>
+</head>
+<body class="center">
+  <form class="card login" id="login">
+    <h1>Acme Orders</h1>
+    <p class="muted">Sign in to your workspace</p>
+    <label>Email <input type="email" name="email" required autocomplete="username"></label>
+    <label>Password <input type="password" name="password" required autocomplete="current-password"></label>
+    <button type="submit" class="primary">Sign in</button>
+  </form>
+<script>
+  document.getElementById('login').addEventListener('submit', e => {
+    e.preventDefault();
+    const email = new FormData(e.target).get('email');
+    localStorage.setItem('session', JSON.stringify({ email }));
+    setTimeout(() => { location.href = 'index.html'; }, 300);
+  });
+</script>
+</body>
+</html>

@@ -1,0 +1,84 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Acme Orders</title>
+<link rel="stylesheet" href="app.css">
+<script src="theme.js"></script>
+<script>if (!localStorage.getItem('session')) location.replace('login.html');</script>
+</head>
+<body>
+<header class="top"><strong>Acme Orders</strong><span class="muted" id="who"></span></header>
+<aside>
+  <a href="#" class="on">Dashboard</a>
+  <a href="#orders">Orders</a>
+  <a href="#">Customers</a>
+  <a href="#">Settings</a>
+</aside>
+<main>
+  <section class="kpis" id="kpis">
+    <div class="card kpi">Revenue <b>$48,210</b><small>+12% vs last week</small></div>
+    <div class="card kpi">Orders <b>1,284</b><small>+8%</small></div>
+    <div class="card kpi">Avg. basket <b>$37.5</b><small>+3%</small></div>
+    <div class="card kpi">Returning <b>64%</b><small>+5 pts</small></div>
+  </section>
+  <section class="card" id="chart">
+    <h2>Orders per day</h2>
+    <div class="bars"></div>
+  </section>
+  <section class="card" id="orders">
+    <h2>Orders</h2>
+    <div class="toolbar">
+      <input type="search" id="search" placeholder="Search by customer or product">
+      <button class="primary" id="new">New order</button>
+    </div>
+    <table>
+      <thead><tr><th>#</th><th>Customer</th><th>Product</th><th>Total</th><th>Status</th></tr></thead>
+      <tbody id="rows"></tbody>
+    </table>
+    <p class="empty" id="empty" hidden>No orders match</p>
+  </section>
+</main>
+<dialog id="dialog">
+  <form method="dialog" id="form">
+    <h2>New order</h2>
+    <label>Customer <input name="customer" required></label>
+    <label>Product <select name="product"><option>Trail backpack</option><option>Rain jacket</option><option>Camping stove</option></select></label>
+    <label>Total <input name="total" type="number" value="120"></label>
+    <button class="primary" value="save">Create order</button>
+  </form>
+</dialog>
+<script>
+  document.getElementById('who').textContent = JSON.parse(localStorage.getItem('session')).email;
+  const heights = [40, 55, 48, 70, 62, 85, 78, 92, 66, 74, 88, 95];
+  const bars = document.querySelector('.bars');
+  heights.forEach(h => { const d = document.createElement('div'); d.dataset.h = h; bars.appendChild(d); });
+  requestAnimationFrame(() => requestAnimationFrame(() => bars.querySelectorAll('div').forEach(d => { d.style.height = d.dataset.h + '%'; })));
+
+  const orders = [
+    [1042, 'Lucía Fernández', 'Trail backpack', 89], [1041, 'Tomás Rivera', 'Rain jacket', 129],
+    [1040, 'Valentina Soto', 'Camping stove', 64], [1039, 'Diego Morales', 'Trail backpack', 89],
+    [1038, 'Isidora Herrera', 'Hiking boots', 149], [1037, 'Martín Rojas', 'Rain jacket', 129],
+    [1036, 'Sofía Castro', 'Sleeping bag', 110],
+  ];
+  const rows = document.getElementById('rows');
+  const render = (q = '', fresh = null) => {
+    const shown = orders.filter(o => (o[1] + ' ' + o[2]).toLowerCase().includes(q.toLowerCase()));
+    rows.innerHTML = shown.map(o => `<tr class="${o[0] === fresh ? 'new' : ''}"><td>${o[0]}</td><td>${o[1]}</td><td>${o[2]}</td><td>$${o[3]}</td><td><span class="status">Paid</span></td></tr>`).join('');
+    document.getElementById('empty').hidden = shown.length > 0;
+  };
+  render();
+  document.getElementById('search').addEventListener('input', e => render(e.target.value));
+  const dialog = document.getElementById('dialog');
+  document.getElementById('new').addEventListener('click', () => dialog.showModal());
+  document.getElementById('form').addEventListener('submit', () => {
+    const f = new FormData(document.getElementById('form'));
+    const id = orders[0][0] + 1;
+    orders.unshift([id, f.get('customer'), f.get('product'), Number(f.get('total'))]);
+    document.getElementById('search').value = '';
+    render('', id);
+  });
+</script>
+</body>
+</html>

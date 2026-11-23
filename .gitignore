@@ -1,0 +1,5 @@
+node_modules/
+.recordings/
+screenshots/
+dist/
+.DS_Store
